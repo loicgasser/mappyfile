@@ -1,3 +1,5 @@
+# split into dicts for verification
+# https://github.com/mapserver/mapserver/blob/master/mapserver.h
 
 COMPOSITE_NAMES = frozenset("""
     align
