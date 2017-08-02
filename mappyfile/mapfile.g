@@ -1,6 +1,6 @@
 start: (_NL* composite _NL*)+
 
-composite: composite_type attr? _NL* composite_body _END
+composite: composite_type attr? _NL+ composite_body _END
        | composite_type points _END
        | composite_type pattern _END
        | composite_type attr _END
@@ -19,10 +19,10 @@ values: "VALUES"i _NL* ((string_pair) _NL+)+ _END
 metadata: "METADATA"i _NL* ((string_pair|attr) _NL+)+ _END
 validation: "VALIDATION"i _NL* ((string_pair|attr) _NL+)+ _END
 
-attr: attr_name value+
+attr: attr_name (value | NAME)+
 
 attr_name: NAME | composite_type
-?value: bare_string | string | int | float | expression | not_expression | attr_bind | path | regexp | runtime_var | list
+?value: string | int | float | expression | not_expression | attr_bind | path | regexp | runtime_var | list
 
 int: SIGNED_INT
 int_pair: int int
