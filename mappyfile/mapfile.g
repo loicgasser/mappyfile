@@ -22,11 +22,12 @@ validation: "VALIDATION"i _NL* ((string_pair|attr) _NL+)+ _END
 attr: attr_name (value | NAME)+
 
 attr_name: NAME | composite_type
-?value: string | int | float | expression | not_expression | attr_bind | path | regexp | runtime_var | list
+?value: string | int | float | expression | not_expression | attr_bind | path | regexp | runtime_var | list | bare_string2
 
 int: SIGNED_INT
 int_pair: int int
-!bare_string: NAME | "SYMBOL"i | "AUTO"i | "GRID"i | "CLASS"i | "FEATURE"i
+!bare_string: NAME | "CLASS"i | "GRID"i | "SYMBOL"i |  "FEATURE"i  | bare_string2
+!bare_string2: "AUTO"i | "HILITE"i
 string: STRING1 | STRING2 | STRING3 
 string_pair: string string
 float: SIGNED_FLOAT
