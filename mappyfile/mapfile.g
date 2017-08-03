@@ -55,7 +55,6 @@ func_params: value ("," value)*
 !composite_type: "CLASS"i
             | "CLUSTER"i
             | "COMPOSITE"i
-            | "CONFIG"i
             | "FEATURE"i
             | "FONTSET"i
             | "GRID"i

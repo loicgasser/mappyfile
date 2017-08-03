@@ -22,7 +22,7 @@ class Parser(object):
         gf = os.path.join(os.path.dirname(__file__), grammar_file)
         grammar_text = open(gf).read()
 
-        return Lark(grammar_text, parser='lalr', lexer='standard')
+        return Lark(grammar_text, parser='lalr', lexer='contextual')
 
     def strip_quotes(self, s):
         return s.strip("'").strip('"')
