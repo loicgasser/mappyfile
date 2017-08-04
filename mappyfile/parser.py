@@ -16,6 +16,7 @@ class Parser(object):
         self.expand_includes = expand_includes
         self.add_linebreaks = add_linebreaks
         self.g = self.load_grammar("mapfile.g")
+        self._nested_include = 0
 
     def load_grammar(self, grammar_file):
         gf = os.path.join(os.path.dirname(__file__), grammar_file)
@@ -28,8 +29,15 @@ class Parser(object):
     def load_includes(self, text, fn=None):
         lines = text.split('\n')
         includes = {}
+        include_discovered = False
         for idx, l in enumerate(lines):
             if l.strip().lower().startswith("include"):
+                if not include_discovered:
+                    include_discovered = True
+                    self._nested_include += 1
+                if self._nested_include > 5:
+                    raise Exception("Maximum nested include exceeded! (MaxNested=5)")
+
                 inc, inc_file_path = l.split()
                 inc_file_path = self._strip_quotes(inc_file_path)
                 if fn and not os.path.isabs(inc_file_path):
@@ -39,7 +47,6 @@ class Parser(object):
                 except IOError as ex:
                     logging.warning("Include file '%s' not found", inc_file_path)
                     raise ex
-                print(inc_file_path)
                 # recursively load any further includes
                 includes[idx] = self.load_includes(include_text, fn=inc_file_path)
 
@@ -57,6 +64,7 @@ class Parser(object):
             raise
 
     def parse_file(self, fn):
+        self._nested_include = 0
         text = self.open_file(fn)
         return self.parse(text, fn=fn)
 
@@ -76,6 +84,7 @@ class Parser(object):
         return "\n".join(new_lines)
 
     def parse(self, text, fn=None):
+        self._nested_include = 0
         if self.expand_includes == True:
             text = self.load_includes(text, fn=fn)
 
