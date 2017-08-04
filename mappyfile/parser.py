@@ -1,6 +1,6 @@
 import os, logging
 from io import open
-from lark import Lark, ParseError
+from lark import Lark
 import re
 
 try:
