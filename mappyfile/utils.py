@@ -10,7 +10,7 @@ def load(fn, cwd=None):
     m = MapfileToDict()
     d = m.transform(ast)
 
-    return d    
+    return d
 
 def loads(s, cwd="", expand_includes=True):
     p = Parser(cwd=cwd, expand_includes=expand_includes)
@@ -18,7 +18,7 @@ def loads(s, cwd="", expand_includes=True):
     m = MapfileToDict()
     d = m.transform(ast)
 
-    return d   
+    return d
 
 def write(d, output_file, indent=4):
 
@@ -32,7 +32,7 @@ def dumps(d):
 
 def find(lst, key, value):
     """
-    When looking for an item by value also check for the value 
+    When looking for an item by value also check for the value
     surrounded by apostrophes
     """
     obj = __find__(lst, key, value)

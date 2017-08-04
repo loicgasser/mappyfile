@@ -17,7 +17,7 @@ class Parser(object):
         self.add_linebreaks = add_linebreaks
         self.g = self.load_grammar("mapfile.g")
 
-        
+
     def load_grammar(self, grammar_file):
 
         gf = os.path.join(os.path.dirname(__file__), grammar_file)
@@ -28,7 +28,7 @@ class Parser(object):
     def strip_quotes(self, s):
         return s.strip("'").strip('"')
 
-    def load_includes(self, text):
+    def load_includes(self, text, fn=None):
 
         lines = text.split('\n')
         includes = {}
@@ -42,15 +42,20 @@ class Parser(object):
 
                 assert (len(parts) == 2)
                 assert (parts[0].lower() == 'include')
-                fn = os.path.join(self.cwd, self.strip_quotes(parts[1]))
+                inclue_fname = self.strip_quotes(parts[1])
+                if fn and os.path.isfile(os.path.join(os.path.dirname(fn), inclue_fname)):
+                    cwd = os.path.dirname(fn)
+                else:
+                    cwd = self.cwd
+                include_path = os.path.join(cwd, self.strip_quotes(parts[1]))
                 try:
-                    include_text = self.open_file(fn)
+                    include_text = self.open_file(include_path)
                 except IOError as ex:
-                    logging.warning("Include file '%s' not found", fn)
+                    logging.warning("Include file '%s' not found", include_path)
                     raise ex
                 # recursively load any further includes
-                includes[idx] = self.load_includes(include_text)
-    
+                includes[idx] = self.load_includes(include_text, fn=fn)
+
         for idx, txt in includes.items():
             lines.pop(idx) # remove the original include
             lines.insert(idx, txt)
@@ -66,11 +71,8 @@ class Parser(object):
             raise
 
     def parse_file(self, fn):
-
-        self.cwd = os.path.dirname(fn)
-
         text = self.open_file(fn)
-        return self.parse(text)
+        return self.parse(text, fn=fn)
 
     def _add_linebreaks(self, text):
         """
@@ -87,10 +89,10 @@ class Parser(object):
 
         return "\n".join(new_lines)
 
-    def parse(self, text):
+    def parse(self, text, fn=None):
 
         if self.expand_includes == True:
-            text = self.load_includes(text)
+            text = self.load_includes(text, fn=fn)
 
         if self.add_linebreaks:
             text = self._add_linebreaks(text)
