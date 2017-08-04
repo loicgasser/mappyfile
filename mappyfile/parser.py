@@ -32,7 +32,7 @@ class Parser(object):
             if l.strip().lower().startswith("include"):
                 inc, inc_file_path = l.split()
                 inc_file_path = self._strip_quotes(inc_file_path)
-                if not os.path.isabs(inc_file_path):
+                if fn and not os.path.isabs(inc_file_path):
                     inc_file_path = os.path.join(os.path.dirname(fn), inc_file_path)
                 try:
                     include_text = self.open_file(inc_file_path)
