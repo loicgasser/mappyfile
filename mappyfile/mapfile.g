@@ -27,8 +27,8 @@ attr_name: NAME | composite_type
 int: SIGNED_INT
 int_pair: int int
 !bare_string: NAME | "CLASS"i | "GRID"i | "SYMBOL"i |  "FEATURE"i  | bare_string2
-!bare_string2: "AUTO"i | "HILITE"i
-string: STRING1 | STRING2 | STRING3 
+!bare_string2: "AUTO"i | "HILITE"i | "SELECTED"i
+string: STRING1 | STRING2 | STRING3
 string_pair: string string
 float: SIGNED_FLOAT
 float_pair: float float
@@ -75,7 +75,7 @@ func_params: value ("," value)*
             | "WEB"i
 
 AUTO: "AUTO"i
-PATH: /[a-z_]*[.\/][a-z0-9_\/.]+/i
+PATH: /([a-z_]*\.*\/|[a-z_]+[.\/])[a-z0-9_\/\.]+/i
 NAME: /[a-z_][a-z0-9_]*/i
 
 SIGNED_FLOAT: ["-"|"+"] FLOAT
