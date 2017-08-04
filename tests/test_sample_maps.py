@@ -29,10 +29,10 @@ def test_includes():
     print(mappyfile.dumps(d))
 
 
-def test_includes_relative_path():
+def test_includes_nested_path():
     p = Parser()
 
-    ast = p.parse_file('./tests/samples/include1_relative_path.map')
+    ast = p.parse_file('./tests/samples/include1_nested_path.map')
     m = MapfileToDict()
 
     d = (m.transform(ast)) # works

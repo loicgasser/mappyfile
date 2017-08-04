@@ -39,8 +39,9 @@ class Parser(object):
                 except IOError as ex:
                     logging.warning("Include file '%s' not found", inc_file_path)
                     raise ex
+                print(inc_file_path)
                 # recursively load any further includes
-                includes[idx] = self.load_includes(include_text, fn=fn)
+                includes[idx] = self.load_includes(include_text, fn=inc_file_path)
 
         for idx, txt in includes.items():
             lines.pop(idx) # remove the original include
