@@ -9,47 +9,33 @@ except ImportError:
     # Python3
     from io import StringIO
 
+
 class Parser(object):
 
-    def __init__(self, cwd="", expand_includes=True, add_linebreaks=True):
-        self.cwd = cwd
+    def __init__(self, expand_includes=True, add_linebreaks=True):
         self.expand_includes = expand_includes
         self.add_linebreaks = add_linebreaks
         self.g = self.load_grammar("mapfile.g")
 
-
     def load_grammar(self, grammar_file):
-
         gf = os.path.join(os.path.dirname(__file__), grammar_file)
         grammar_text = open(gf).read()
+        return Lark(grammar_text, parser="earley", lexer="standard")
 
-        return Lark(grammar_text, parser='earley', lexer='standard')
-
-    def strip_quotes(self, s):
-        return s.strip("'").strip('"')
+    def _strip_quotes(self, s):
+        return s.rstrip("#").strip("'").strip('"')
 
     def load_includes(self, text, fn=None):
-
         lines = text.split('\n')
         includes = {}
-
         for idx, l in enumerate(lines):
-            if l.strip().lower().startswith('include'):
-                if '#' in l:
-                    l = l[:l.index('#')]
-
-                parts = [p for p in l.split()]
-
-                assert (len(parts) == 2)
-                assert (parts[0].lower() == 'include')
-                inclue_fname = self.strip_quotes(parts[1])
-                if fn and os.path.isfile(os.path.join(os.path.dirname(fn), inclue_fname)):
-                    cwd = os.path.dirname(fn)
-                else:
-                    cwd = self.cwd
-                include_path = os.path.join(cwd, self.strip_quotes(parts[1]))
+            if l.strip().lower().startswith("include"):
+                inc, inc_file_path = l.split()
+                inc_file_path = self._strip_quotes(inc_file_path)
+                if not os.path.isabs(inc_file_path):
+                    inc_file_path = os.path.join(os.path.dirname(fn), inc_file_path)
                 try:
-                    include_text = self.open_file(include_path)
+                    include_text = self.open_file(inc_file_path)
                 except IOError as ex:
                     logging.warning("Include file '%s' not found", include_path)
                     raise ex
@@ -59,7 +45,6 @@ class Parser(object):
         for idx, txt in includes.items():
             lines.pop(idx) # remove the original include
             lines.insert(idx, txt)
-
         return '\n'.join(lines)
 
     def open_file(self, fn):
@@ -90,7 +75,6 @@ class Parser(object):
         return "\n".join(new_lines)
 
     def parse(self, text, fn=None):
-
         if self.expand_includes == True:
             text = self.load_includes(text, fn=fn)
 
