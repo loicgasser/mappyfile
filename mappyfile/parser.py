@@ -7,23 +7,28 @@ from lark.lexer import UnexpectedInput
 
 class Parser(object):
 
-    def __init__(self, expand_includes=True):
+    lalr = None
+
+    earley = None
+
+    def __init__(self, expand_includes=True, parser_name=None):
         self.expand_includes = expand_includes
-        self.lalr = self._create_lalr_parser()
-        self.earley = None  # only load this grammar as required
+        self.parser_name = parser_name
         self._nested_include = 0
 
     def load_grammar(self, grammar_file):
         gf = os.path.join(os.path.dirname(__file__), grammar_file)
         return open(gf).read()
 
-    def _create_earley_parser(self):
-        grammar_text = self.load_grammar("mapfile.earley.g")
-        return Lark(grammar_text, parser="earley", lexer="standard", earley__all_derivations=False)
-
     def _create_lalr_parser(self):
-        grammar_text = self.load_grammar("mapfile.lalr.g")
-        return Lark(grammar_text, parser="lalr", lexer="contextual")
+        if self.lalr is None:
+            grammar_text = self.load_grammar("mapfile.lalr.g")
+            self.lalr = Lark(grammar_text, parser="lalr", lexer="contextual")
+
+    def _create_earley_parser(self):
+        if self.earley is None:
+            grammar_text = self.load_grammar("mapfile.earley.g")
+            self.earley = Lark(grammar_text, parser="earley", lexer="standard", earley__all_derivations=False)
 
     def _strip_quotes(self, s):
         s = s[:s.index('#')] if '#' in s else s
@@ -85,16 +90,28 @@ class Parser(object):
         if self.expand_includes:
             text = self.load_includes(text, fn=fn)
 
+        if self.parser_name == 'lalr':
+            return self._parse_lalr(text)
+
+        if self.parser_name == 'earley':
+            return self._parse_earley(text)
+
+        try:
+            return self._parse_lalr(text)
+        except:
+            logging.info("Attempting to parse with Earley")
+            return self._parse_earley(text)
+
+    def _parse_lalr(self, text):
+        self._create_lalr_parser()
         try:
             return self.lalr.parse(text)
         except (ParseError, UnexpectedInput) as ex:
             logging.info(ex)
+            raise ex
 
-        logging.info("Attempting to parse with Earley")
-
-        if self.earley is None:
-            self.earley = self._create_earley_parser()
-
+    def _parse_earley(self, text):
+        self._create_earley_parser()
         try:
             ast = self.earley.parse(text)
             logging.info("Parsing with Earley successful")
@@ -102,4 +119,4 @@ class Parser(object):
         except (ParseError, UnexpectedInput) as ex:
             logging.exception(ex)
             logging.error("Parsing with LALR and Earley unsuccessful")
-            raise
+            raise ex

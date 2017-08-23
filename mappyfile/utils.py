@@ -4,16 +4,16 @@ from mappyfile.pprint import PrettyPrinter
 import codecs
 
 
-def load(fn, expand_includes=True):
-    p = Parser(expand_includes=expand_includes)
+def load(fn, expand_includes=True, parser_name=None):
+    p = Parser(expand_includes=expand_includes, parser_name=parser_name)
     ast = p.parse_file(fn)
     m = MapfileToDict()
     d = m.transform(ast)
     return d
 
 
-def loads(s, expand_includes=True):
-    p = Parser(expand_includes=expand_includes)
+def loads(s, expand_includes=True, parser_name=None):
+    p = Parser(expand_includes=expand_includes, parser_name=parser_name)
     ast = p.parse(s)
     m = MapfileToDict()
     d = m.transform(ast)
